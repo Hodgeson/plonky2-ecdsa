@@ -1,3 +1,4 @@
+use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use core::marker::PhantomData;
 
@@ -10,6 +11,8 @@ use plonky2::iop::generator::{GeneratedValues, SimpleGenerator};
 use plonky2::iop::target::{BoolTarget, Target};
 use plonky2::iop::witness::{PartitionWitness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
+use plonky2::plonk::circuit_data::CommonCircuitData;
+use plonky2::util::serialization::{Buffer, IoError};
 
 use crate::curve::glv::{decompose_secp256k1_scalar, GLV_BETA, GLV_S};
 use crate::curve::secp256k1::Secp256K1;
@@ -109,7 +112,7 @@ struct GLVDecompositionGenerator<F: RichField + Extendable<D>, const D: usize> {
     _phantom: PhantomData<F>,
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F>
+impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
     for GLVDecompositionGenerator<F, D>
 {
     fn dependencies(&self) -> Vec<Target> {
@@ -128,6 +131,13 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F>
         out_buffer.set_bool_target(self.k1_neg, k1_neg);
         out_buffer.set_bool_target(self.k2_neg, k2_neg);
     }
+
+    fn id(&self) -> String { "GLVDecompositionGenerator".to_string() }
+
+    fn serialize(&self, _: &mut Vec<u8>, _: &CommonCircuitData<F, D>) -> Result<(), IoError> { todo!() }
+    fn deserialize(_: &mut Buffer<'_>, _: &CommonCircuitData<F, D>) -> Result<Self, IoError> { todo!() }
+
+
 }
 
 #[cfg(test)]
